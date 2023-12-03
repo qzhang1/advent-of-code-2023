@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES5",
-    "module": "CommonJS",
+    "rootDirs": [
+      "src",
+      "tests"
+    ],
     "outDir": "out",
     "sourceMap": true
   }
