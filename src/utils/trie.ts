@@ -1,5 +1,3 @@
-const MAX_TRIE_SIZE = 26; // size of standard alphabet
-
 class TrieNode {
   value: string;
   nodes: Map<string, TrieNode> = new Map();

@@ -1,28 +1,14 @@
-import { createReadStream, existsSync } from "node:fs";
+import { existsSync } from "node:fs";
+import { ConfigurableReader, readByLine } from "../utils/reader";
 import Trie from "../utils/trie";
-
-async function* readByLine(filePath: string): AsyncGenerator<string> {
-  const readStream = createReadStream(filePath, "utf-8");
-  let content = "";
-  for await (const chunk of readStream) {
-    content += chunk;
-    let linebreakIdx;
-    while ((linebreakIdx = content.indexOf("\n")) >= 0) {
-      yield content.substring(0, linebreakIdx);
-      content = content.substring(linebreakIdx + 1);
-    }
-  }
-
-  // last line of file
-  if (content.length) {
-    yield content;
-  }
-}
 
 async function calculate(filePath: string, includeWords: boolean) {
   if (filePath && filePath.length && existsSync(filePath)) {
     let calculatedValue = 0;
-    for await (const line of readByLine(filePath)) {
+    for await (const line of readByLine({
+      fromFilePath: filePath,
+      fromText: null,
+    })) {
       let firstNum = "";
       let secondNum = "";
       let word = "";
