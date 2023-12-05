@@ -1,64 +1,59 @@
-import { existsSync } from "node:fs";
 import { ConfigurableReader, readByLine } from "../utils/reader";
 import Trie from "../utils/trie";
 
-async function calculate(filePath: string, includeWords: boolean) {
-  if (filePath && filePath.length && existsSync(filePath)) {
-    let calculatedValue = 0;
-    for await (const line of readByLine({
-      fromFilePath: filePath,
-      fromText: null,
-    })) {
-      let firstNum = "";
-      let secondNum = "";
-      let word = "";
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (!isNaN(parseInt(char, 10))) {
-          if (word.length) {
+export async function calculate(
+  conf: ConfigurableReader,
+  includeWords: boolean
+) {
+  let calculatedValue = 0;
+  for await (const line of readByLine(conf)) {
+    let firstNum = "";
+    let secondNum = "";
+    let word = "";
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (!isNaN(parseInt(char, 10))) {
+        if (word.length) {
+          word = "";
+        }
+        if (!firstNum) {
+          firstNum = char;
+        }
+        secondNum = char;
+      } else if (includeWords) {
+        word += char;
+        // min num is 3 digits long so don't check until at least 3 chars
+        if (word.length >= 3 && numberTrie.hasWord(word)) {
+          const num = wordMap[word];
+          // check if it matches any key in wordMap if any match ends in e or n then we need to check if
+          // there's an intersection of two numbers e.g. sevenine => 7, 9
+          // if there's an intersection then we need to pop the queue up to the intersected point
+          if (
+            word[word.length - 1] === "e" ||
+            word[word.length - 1] === "n" ||
+            word[word.length - 1] === "o"
+          ) {
+            word = word[word.length - 1];
+          } else {
             word = "";
           }
+
           if (!firstNum) {
-            firstNum = char;
+            firstNum = num;
           }
-          secondNum = char;
-        } else if (includeWords) {
-          word += char;
-          // min num is 3 digits long so don't check until at least 3 chars
-          if (word.length >= 3 && numberTrie.hasWord(word)) {
-            const num = wordMap[word];
-            // check if it matches any key in wordMap if any match ends in e or n then we need to check if
-            // there's an intersection of two numbers e.g. sevenine => 7, 9
-            // if there's an intersection then we need to pop the queue up to the intersected point
-            if (
-              word[word.length - 1] === "e" ||
-              word[word.length - 1] === "n" ||
-              word[word.length - 1] === "o"
-            ) {
-              word = word[word.length - 1];
-            } else {
-              word = "";
-            }
+          secondNum = num;
+        }
 
-            if (!firstNum) {
-              firstNum = num;
-            }
-            secondNum = num;
-          }
-
-          if (!numberTrie.startsWith(word)) {
-            word = word.slice(1);
-          }
+        if (!numberTrie.hasPrefix(word)) {
+          word = word.slice(1);
         }
       }
-
-      word = "";
-      calculatedValue += parseInt(firstNum + secondNum);
     }
-    return calculatedValue;
-  }
 
-  throw new Error("invalid filePath provided");
+    word = "";
+    calculatedValue += parseInt(firstNum + secondNum);
+  }
+  return calculatedValue;
 }
 
 const wordMap = {
@@ -75,4 +70,12 @@ const wordMap = {
 const numberTrie = new Trie();
 Object.keys(wordMap).forEach((num) => numberTrie.insert(num));
 
-calculate(process.argv[2], true).then((result) => console.log(result));
+function run() {
+  calculate(
+    {
+      fromFilePath: "./input/day-1-input",
+      fromText: null,
+    },
+    true
+  ).then((result) => console.log(result));
+}

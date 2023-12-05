@@ -47,7 +47,7 @@ export default class Trie {
   }
 
   // returns true if there's a word that contains the prefix
-  startsWith(prefix: string): boolean {
+  hasPrefix(prefix: string): boolean {
     return this.internalSearch(prefix, false);
   }
 }
