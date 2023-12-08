@@ -74,14 +74,14 @@ func partOne(reader *bufio.Scanner) int {
 	return points
 }
 
-func updateStats(cardMatches map[int]int, lineNum, numMatch int) {
+func updateStats(cardMatches []int, lineNum, numMatch int) {
 	for i := lineNum + 1; i <= lineNum+numMatch; i++ {
-		cardMatches[i]++
+		cardMatches[i-1]++
 	}
 }
 
 func partTwo(reader *bufio.Scanner) int {
-	cardMatches := make(map[int]int, 209)
+	cardMatches := make([]int, 209)
 	lineNum := 1
 	for reader.Scan() {
 		line := reader.Text()
@@ -97,8 +97,8 @@ func partTwo(reader *bufio.Scanner) int {
 			}
 		}
 
-		cardMatches[lineNum]++
-		for i := 0; i < cardMatches[lineNum]; i++ {
+		cardMatches[lineNum-1]++
+		for i := 0; i < cardMatches[lineNum-1]; i++ {
 			updateStats(cardMatches, lineNum, matches)
 		}
 		lineNum += 1
