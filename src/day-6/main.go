@@ -37,6 +37,9 @@ func partOne() int {
 }
 
 func partTwo() int {
+	// since above equation can be derived into -x^2 + tx - y = 0
+	// to find the bounds where x, the time to push the button, will result in distance greater than y
+	// we find using the quadratic equation
 	a := -1
 	b := 49877895
 	c := -356137815021882
